@@ -83,4 +83,4 @@ pentest_interface = create_pentest_interface(
 demo = pentest_interface
 
 if __name__ == "__main__":
-    demo.launch(share=False, theme="soft", server_port=8000, inbrowser=True)
+    demo.launch(share=False, theme="soft", server_port=8001, inbrowser=True)

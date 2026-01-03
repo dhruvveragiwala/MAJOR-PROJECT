@@ -1,21 +1,16 @@
-python-dotenv==1.0.1 # For reading environment variables stored in .env file
-langchain-community==0.2.3
-unstructured==0.14.4 # Document loading
-onnxruntime==1.19.0 # chromadb dependency: on Mac use `conda install onnxruntime -c conda-forge`
-# For Windows users, install Microsoft Visual C++ Build Tools first
-# install onnxruntime before installing `chromadb`
-openai==1.31.1 # For embeddings
-tiktoken==0.7.0  # For embeddings 
-pypdf # Ingest PDF
+python-dotenv
+langchain-community
+unstructured
+onnxruntime
+openai
+langchain-openai
+tiktoken
+pypdf
 langchain
 langgraph
-chromadb # Vector storage
-langchain-chroma # Vector storage
-pytest # For unit testing ##Remove Maybe
-#boto3 # for AWS hosting if required ##Remove Maybe
-langchain-ollama # Ollama local embeddings
+chromadb
+langchain-chroma
+langchain-ollama
 markdown
-unstructured
 nltk
-gradio
-# install markdown depenendies with: `pip install "unstructured[md]"` after install the requirements file. Leave this line commented out. 
+gradio 

@@ -8,7 +8,9 @@ from pathlib import Path
 # from langchain_community.llms.ollama import Ollama
 # from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 # import torch
-# from langchain_community.chat_models import ChatOllama
+from langchain_community.chat_models import ChatOllama
+from langchain_ollama import ChatOllama as ChatOllamaNew
+from langchain_openai import ChatOpenAI
 # Optionally disable RAG/vectorstore for local runs (set to True to enable Chroma)
 USE_RAG = False
 
@@ -17,8 +19,8 @@ if USE_RAG:
 from get_embedding_function import get_embedding_function
 from urllib.parse import urlparse
 
-BASE_URL = "https://d2d78cbbc03e.ngrok-free.app"
-# MODEL = ChatOllama(model="llama3.1", base_url=BASE_URL)
+BASE_URL = "https://2b7014a6269e.ngrok-free.app"
+MODEL = ChatOllamaNew(model="llama3.1:8b-instruct-q2_K", base_url=BASE_URL)
 
 CHROMA_PATH = "chroma"
 
@@ -35,7 +37,7 @@ else:
 
     db = DummyDB()
 # memory = MemorySaver()
-# model = ChatOllama(model="llama3.1", base_url=BASE_URL)
+# model = ChatOllama(model="llama3.1:8b-instruct-q2_K", base_url=BASE_URL)
 katOutput = "data/books/tempKat.txt"
 katFilter = "data/books/filterKat.txt"
 
@@ -91,8 +93,8 @@ def det_vuln_url(prompt):
     from langchain.prompts import ChatPromptTemplate
     prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
     promptN = prompt_template.format(context=context_text, question=prompt)
-    from langchain_ollama import ChatOllama
-    model = ChatOllama(model="llama3.1", base_url=BASE_URL)
+    from langchain_ollama import ChatOllama as ChatOllamaNew
+    model = ChatOllamaNew(model="llama3.1:8b-instruct-q2_K", base_url=BASE_URL)
     SQLIURL = model.invoke(promptN).content
     print("LLM says: " + SQLIURL)
     return SQLIURL
@@ -337,19 +339,21 @@ def query_rag_agent(query_text, history):
                 print(msg)
             
             # Simple summary
-            summary = f"Summary: Completed security assessment for {url} using 5 tools: Crawling, SQL Injection testing, XSS detection, HTTP header analysis, and Port scanning. Review the detailed results above for vulnerabilities and recommendations."
-            agent_responses.append({'role': 'assistant', 'content': summary})
-            print(summary)
+            # summary = f"Summary: Completed security assessment for {url} using 5 tools: Crawling, SQL Injection testing, XSS detection, HTTP header analysis, and Port scanning. Review the detailed results above for vulnerabilities and recommendations."
+            # agent_responses.append({'role': 'assistant', 'content': summary})
+            # print(summary)
             
             # Summarize results using LLM
-            # all_results = "\n\n".join([resp['content'] for resp in agent_responses])
-            # summary_prompt = f"Summarize the following pentesting results for URL {url} in a concise report:\n{all_results}"
-            # try:
-            #     summary_response = MODEL.invoke(summary_prompt)
-            #     summary = summary_response.content
-            #     agent_responses.append({'role': 'assistant', 'content': f"AI Summary: {summary}"})
-            # except Exception as e:
-            #     agent_responses.append({'role': 'assistant', 'content': f"Summary error: {e}"})
+            all_results = "\n\n".join([resp['content'] for resp in agent_responses])
+            summary_prompt = f"Summarize the following pentesting results for URL {url} in a concise report, including findings, vulnerabilities, and detailed remediation steps:\n{all_results}"
+            try:
+                summary_response = MODEL.invoke(summary_prompt)
+                summary = summary_response.content
+                agent_responses.append({'role': 'assistant', 'content': f"AI Summary and Remediation: {summary}"})
+                print(f"AI Summary and Remediation: {summary}")
+            except Exception as e:
+                agent_responses.append({'role': 'assistant', 'content': f"Summary error: {e}"})
+                print(f"Summary error: {e}")
         else:
             agent_responses.append({'role': 'assistant', 'content': f"Query not recognized: {query_text}. Try including a URL."})
         
